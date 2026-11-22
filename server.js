@@ -91,7 +91,7 @@ app.post("/api/analyse", async (req,res) => {
       return {played:gf.length, gf:avg(gf), ga:avg(ga), wins,draws,losses, fixtures:fs.slice(0,10).map(f=>({date:f.fixture?.date,home:f.teams?.home?.name,away:f.teams?.away?.name,score:`${f.goals?.home}-${f.goals?.away}`}))};
     };
     const hs=summarize(hfx,hid), as=summarize(afx,aid);
-    const statVal = (d,path) => path.split(".").reduce((o,k)=>o?.[k],d.response?.[0]) ;
+    const statVal = (d,path) => path.split(".").reduce((o,k)=>o?.[k],d.response);
     const hHomeFor=Number(statVal(hstats,"goals.for.average.home"));
     const aAwayFor=Number(statVal(astats,"goals.for.average.away"));
     const hHomeAgainst=Number(statVal(hstats,"goals.against.average.home"));
