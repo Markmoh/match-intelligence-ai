@@ -33,7 +33,9 @@ app.get("/api/leagues", async (req,res) => {
     const search = String(req.query.search || "").toLowerCase();
     const cacheKey = "leagueCatalog";
     if (!globalThis[cacheKey] || Date.now()-globalThis[cacheKey].at > 12*60*60*1000) {
-      let all = [], page = 1, total = 1;
+      const j = await api(`/leagues?current=true`);
+const all = arr(j.response);
+globalThis[cacheKey] = {at:Date.now(), data:all};
       do {
         const j = await api(`/leagues?current=true&page=${page}`);
         all.push(...arr(j.response));
