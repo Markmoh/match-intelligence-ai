@@ -7,6 +7,8 @@ app.use(express.json());
 app.use(express.static("public"));
 
 const KEY = process.env.API_FOOTBALL_KEY;
+const HIGHLIGHTLY_KEY = process.env.HIGHLIGHTLY_API_KEY;
+const HIGHLIGHTLY_BASE = "https://soccer.highlightly.net";
 const BASE = "https://v3.football.api-sports.io";
 const PORT = process.env.PORT || 3000;
 
