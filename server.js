@@ -47,14 +47,16 @@ app.get("/api/highlightly-test", async (req, res) => {
       });
     }
 
-    res.json({
-      ok: true,
-      provider: "Highlightly",
-      count: body.data?.length ?? 0,
-      leagues: body.data ?? [],
-      pagination: body.pagination ?? null,
-      plan: body.plan ?? null
-    });
+    const results = Array.isArray(body) ? body : (body.data ?? []);
+
+res.json({
+  ok: true,
+  provider: "Highlightly",
+  count: results.length,
+  results: results,
+  pagination: body.pagination ?? null,
+  plan: body.plan ?? null
+});
   } catch (error) {
     res.status(500).json({ ok: false, error: error.message });
   }
