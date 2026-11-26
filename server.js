@@ -33,7 +33,7 @@ app.get("/api/highlightly-test", async (req, res) => {
     if (!key) throw new Error("Highlightly API key is missing.");
 
     const response = await fetch(
-     "https://soccer.highlightly.net/standings?leagueId=235660&season=2026",
+     "https://soccer.highlightly.net/standings?leagueId=235660&season=2025",
       { headers: { "x-rapidapi-key": key } }
     );
 
