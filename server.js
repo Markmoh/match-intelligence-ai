@@ -27,6 +27,37 @@ const arr = x => Array.isArray(x) ? x : [];
 const avg = xs => xs.length ? xs.reduce((a,b)=>a+b,0)/xs.length : null;
 
 app.get("/api/health", (_req,res) => res.json({ok:true, configured:!!KEY, provider:"API-Football"}));
+app.get("/api/highlightly-test", async (req, res) => {
+  try {
+    const key = process.env.HIGHLIGHTLY_API_KEY;
+    if (!key) throw new Error("Highlightly API key is missing.");
+
+    const response = await fetch(
+      "https://soccer.highlightly.net/leagues?limit=5",
+      { headers: { "x-rapidapi-key": key } }
+    );
+
+    const body = await response.json();
+
+    if (!response.ok) {
+      return res.status(response.status).json({
+        ok: false,
+        provider: "Highlightly",
+        error: body
+      });
+    }
+
+    res.json({
+      ok: true,
+      provider: "Highlightly",
+      count: body.data?.length ?? 0,
+      leagues: body.data ?? [],
+      plan: body.plan ?? null
+    });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
 
 app.get("/api/leagues", async (req,res) => {
   try {
