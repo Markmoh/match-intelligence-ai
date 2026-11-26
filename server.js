@@ -3,6 +3,25 @@ import dotenv from "dotenv";
 
 dotenv.config();
 const app = express();
+async function highlightly(path) {
+  if (!HIGHLIGHTLY_KEY) {
+    throw new Error("Highlightly API key is missing.");
+  }
+
+  const response = await fetch(`${HIGHLIGHTLY_BASE}${path}`, {
+    headers: {
+      "x-rapidapi-key": HIGHLIGHTLY_KEY
+    }
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(`Highlightly error: ${response.status}`);
+  }
+
+  return data;
+}
 app.use(express.json());
 app.use(express.static("public"));
 
