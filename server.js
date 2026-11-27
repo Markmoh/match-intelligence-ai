@@ -96,17 +96,20 @@ app.get("/api/leagues", async (req,res) => {
     const search = String(req.query.search || "").toLowerCase();
     const cacheKey = "leagueCatalog";
     if (!globalThis[cacheKey] || Date.now()-globalThis[cacheKey].at > 12*60*60*1000) {
-      const j = await api(`/leagues?current=true`);
-const all = arr(j.response);
-globalThis[cacheKey] = {at:Date.now(), data:all};
-      do {
-        const j = await api(`/leagues?current=true&page=${page}`);
-        all.push(...arr(j.response));
-        total = Number(j.paging?.total || 1);
-        page++;
-      } while (page <= total && page <= 100);
-      globalThis[cacheKey] = {at:Date.now(), data:all};
+  let page = 1;
+  let total = 1;
+  const all = [];
+
+  do {
+    const j = await api(`/leagues?current=true&page=${page}`);
+    all.push(...arr(j.response));
+    total = Number(j.paging?.total || 1);
+    page++;
+  } while (page <= total && page <= 100);
+
+  globalThis[cacheKey] = {at:Date.now(), data:all};
     }
+ 
     const list = globalThis[cacheKey].data
       .filter(x => !search || `${x.league?.name} ${x.country?.name} ${x.league?.type}`.toLowerCase().includes(search))
       .map(x => ({id:x.league?.id, name:x.league?.name, country:x.country?.name, type:x.league?.type, season:x.seasons?.find(s=>s.current)?.year || currentSeason(), logo:x.league?.logo}))
