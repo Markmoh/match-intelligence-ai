@@ -47,7 +47,15 @@ const currentSeason = () => {
 const arr = x => Array.isArray(x) ? x : [];
 const avg = xs => xs.length ? xs.reduce((a,b)=>a+b,0)/xs.length : null;
 
-app.get("/api/health", (_req,res) => res.json({ok:true, configured:!!KEY, provider:"API-Football"}));
+app.get("/api/health", (req, res) => {
+  res.json({
+    ok: true,
+    configured: !!HIGHLIGHTLY_KEY,
+    provider: "Highlightly",
+    highlightlyConfigured: !!HIGHLIGHTLY_KEY,
+    apiFootballConfigured: !!KEY
+  });
+});
 app.get("/api/highlightly-test", async (req, res) => {
   try {
     const key = process.env.HIGHLIGHTLY_API_KEY;
