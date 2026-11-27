@@ -138,6 +138,25 @@ app.get("/api/highlightly-form-test", async (req, res) => {
     });
   }
 });
+app.get("/api/highlightly-match-test", async (req, res) => {
+  try {
+    const matchId = req.query.matchId || "1402591752";
+
+    const body = await highlightly(`/matches/${matchId}`);
+
+    res.json({
+      ok: true,
+      provider: "Highlightly",
+      matchId,
+      result: body
+    });
+  } catch (error) {
+    res.status(500).json({
+      ok: false,
+      error: error.message
+    });
+  }
+});
 app.get("/api/leagues", async (req,res) => {
   try {
     const search = String(req.query.search || "").toLowerCase();
