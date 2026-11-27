@@ -114,6 +114,30 @@ app.get("/api/highlightly-team-test", async (req, res) => {
     });
   }
 });
+app.get("/api/highlightly-form-test", async (req, res) => {
+  try {
+    const teamId = req.query.teamId || "2298484";
+
+    const body = await highlightly(
+      `/last-five-games?teamId=${encodeURIComponent(teamId)}`
+    );
+
+    const results = Array.isArray(body) ? body : (body.data ?? []);
+
+    res.json({
+      ok: true,
+      provider: "Highlightly",
+      teamId,
+      count: results.length,
+      results
+    });
+  } catch (error) {
+    res.status(500).json({
+      ok: false,
+      error: error.message
+    });
+  }
+});
 app.get("/api/leagues", async (req,res) => {
   try {
     const search = String(req.query.search || "").toLowerCase();
