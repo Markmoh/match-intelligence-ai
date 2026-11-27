@@ -206,6 +206,31 @@ app.get("/api/highlightly-statistics-test", async (req, res) => {
   }
 });
 
+app.get("/api/highlightly-leagues-test", async (req, res) => {
+  try {
+    const country = req.query.country || "South Africa";
+
+    const body = await highlightly(
+      `/leagues?countryName=${encodeURIComponent(country)}`
+    );
+
+    const results = Array.isArray(body) ? body : (body.data ?? []);
+
+    res.json({
+      ok: true,
+      provider: "Highlightly",
+      country,
+      count: results.length,
+      results
+    });
+  } catch (error) {
+    res.status(500).json({
+      ok: false,
+      error: error.message
+    });
+  }
+});
+
 app.get("/api/leagues", async (req, res) => {
   try {
     const search = String(req.query.search || "").toLowerCase();
