@@ -90,7 +90,30 @@ res.json({
     res.status(500).json({ ok: false, error: error.message });
   }
 });
+app.get("/api/highlightly-team-test", async (req, res) => {
+  try {
+    const name = req.query.name || "Orlando Pirates";
 
+    const body = await highlightly(
+      `/teams?name=${encodeURIComponent(name)}&type=club`
+    );
+
+    const results = Array.isArray(body) ? body : (body.data ?? []);
+
+    res.json({
+      ok: true,
+      provider: "Highlightly",
+      search: name,
+      count: results.length,
+      results
+    });
+  } catch (error) {
+    res.status(500).json({
+      ok: false,
+      error: error.message
+    });
+  }
+});
 app.get("/api/leagues", async (req,res) => {
   try {
     const search = String(req.query.search || "").toLowerCase();
