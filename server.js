@@ -157,6 +157,32 @@ app.get("/api/highlightly-match-test", async (req, res) => {
     });
   }
 });
+app.get("/api/highlightly-h2h-test", async (req, res) => {
+  try {
+    const teamIdOne = req.query.teamIdOne || "2298484";
+    const teamIdTwo = req.query.teamIdTwo || "13222771";
+
+    const body = await highlightly(
+      `/head-2-head?teamIdOne=${encodeURIComponent(teamIdOne)}&teamIdTwo=${encodeURIComponent(teamIdTwo)}`
+    );
+
+    const results = Array.isArray(body) ? body : (body.data ?? []);
+
+    res.json({
+      ok: true,
+      provider: "Highlightly",
+      teamIdOne,
+      teamIdTwo,
+      count: results.length,
+      results
+    });
+  } catch (error) {
+    res.status(500).json({
+      ok: false,
+      error: error.message
+    });
+  }
+});
 app.get("/api/leagues", async (req,res) => {
   try {
     const search = String(req.query.search || "").toLowerCase();
