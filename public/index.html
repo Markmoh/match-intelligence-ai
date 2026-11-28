@@ -581,6 +581,85 @@ const workspace = target === "statistics" ? "analytics" : target;
   });
 });
 
+// INDEPENDENT TEAM FORM RESEARCH
+$("teamFormAnalyse").addEventListener("click", async () => {
+  const name = $("teamFormSearch").value.trim();
+
+  if (!name) {
+    $("teamFormStatus").textContent = "Enter a football team name first.";
+    return;
+  }
+
+  const button = $("teamFormAnalyse");
+  button.disabled = true;
+  button.textContent = "RESEARCHING...";
+  $("teamFormStatus").textContent = "Retrieving recent team performance...";
+  $("teamFormResult").style.display = "none";
+
+  try {
+    const response = await fetch(
+      `/api/team-form?name=${encodeURIComponent(name)}`
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Team research failed.");
+    }
+
+    const team = data.team;
+    const stats = data.statistics;
+
+    $("teamFormIdentity").innerHTML = `
+      <div style="display:flex;align-items:center;gap:15px;margin-bottom:20px">
+        <img src="${safe(team.logo)}" alt=""
+          style="width:65px;height:65px;object-fit:contain">
+        <div>
+          <h2>${safe(team.name)}</h2>
+          <div class="note">HIGHLIGHTLY TEAM PROFILE</div>
+        </div>
+      </div>
+    `;
+
+    $("teamFormStats").innerHTML = `
+      <h3>Performance statistics</h3>
+      <div class="stats-grid">
+        <div class="stat"><strong>${stats.played}</strong><span>Played</span></div>
+        <div class="stat"><strong>${stats.wins}</strong><span>Wins</span></div>
+        <div class="stat"><strong>${stats.draws}</strong><span>Draws</span></div>
+        <div class="stat"><strong>${stats.losses}</strong><span>Losses</span></div>
+        <div class="stat"><strong>${stats.goalsScored}</strong><span>Goals scored</span></div>
+        <div class="stat"><strong>${stats.goalsConceded}</strong><span>Goals conceded</span></div>
+        <div class="stat"><strong>${stats.averageScored}</strong><span>Avg scored</span></div>
+        <div class="stat"><strong>${stats.averageConceded}</strong><span>Avg conceded</span></div>
+      </div>
+    `;
+
+    $("teamFormMatches").innerHTML = `
+      <h3>Recent five matches</h3>
+      ${data.fixtures.map(match => `
+        <div class="match-row">
+          <div>
+            <strong>${safe(match.home)} vs ${safe(match.away)}</strong>
+            <div class="note">${new Date(match.date).toLocaleDateString()}</div>
+          </div>
+          <strong>${safe(match.score)}</strong>
+          <strong>${safe(match.result)}</strong>
+        </div>
+      `).join("")}
+    `;
+
+    $("teamFormResult").style.display = "block";
+    $("teamFormStatus").textContent = "Team research completed successfully.";
+
+  } catch (error) {
+    $("teamFormStatus").textContent = error.message;
+  } finally {
+    button.disabled = false;
+    button.textContent = "RESEARCH TEAM FORM →";
+  }
+});
+
 loadLeagues();
 </script>
 </body>
