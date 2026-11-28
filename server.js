@@ -583,4 +583,135 @@ app.post("/api/analyse", async (req, res) => {
   }
 });
 
+app.get("/api/team-form", async (req, res) => {
+  try {
+    const name = String(req.query.name || "").trim();
+
+    if (!name) {
+      return res.status(400).json({
+        error: "Please provide a team name."
+      });
+    }
+
+    // Search Highlightly for the requested team.
+    const teamBody = await cached(
+      `/teams?name=${enc(name)}&type=club`,
+      12 * 60 * 60 * 1000
+    );
+
+    const teams = Array.isArray(teamBody)
+      ? teamBody
+      : (teamBody.data || []);
+
+    const team = teams.find(t =>
+      String(t.name || "").toLowerCase() === name.toLowerCase()
+    ) || teams[0];
+
+    if (!team?.id) {
+      return res.status(404).json({
+        error: "Team not found. Check the spelling."
+      });
+    }
+
+    // Retrieve the team's latest five matches.
+    const body = await cached(
+      `/last-five-games?teamId=${team.id}`,
+      30 * 60 * 1000
+    );
+
+    const matches = Array.isArray(body)
+      ? body
+      : (body.data || []);
+
+    let gf = 0;
+    let ga = 0;
+    let wins = 0;
+    let draws = 0;
+    let losses = 0;
+
+    const fixtures = [];
+
+    for (const match of matches) {
+      const value = match.state?.score?.current;
+
+      if (typeof value !== "string") continue;
+
+      const score = value.match(/(\d+)\s*[-–:]\s*(\d+)/);
+      if (!score) continue;
+
+      const homeGoals = Number(score[1]);
+      const awayGoals = Number(score[2]);
+
+      const homeId = String(match.homeTeam?.id);
+      const awayId = String(match.awayTeam?.id);
+      const teamId = String(team.id);
+
+      let scored, conceded;
+
+      if (homeId === teamId) {
+        scored = homeGoals;
+        conceded = awayGoals;
+      } else if (awayId === teamId) {
+        scored = awayGoals;
+        conceded = homeGoals;
+      } else {
+        continue;
+      }
+
+      gf += scored;
+      ga += conceded;
+
+      const result =
+        scored > conceded ? "W" :
+        scored === conceded ? "D" : "L";
+
+      if (result === "W") wins++;
+      else if (result === "D") draws++;
+      else losses++;
+
+      fixtures.push({
+        date: match.date,
+        home: match.homeTeam?.name,
+        away: match.awayTeam?.name,
+        score: `${homeGoals}-${awayGoals}`,
+        result
+      });
+    }
+
+    const played = fixtures.length;
+
+    if (!played) {
+      return res.status(404).json({
+        error: "No completed recent matches were found for this team."
+      });
+    }
+
+    res.json({
+      ok: true,
+      provider: "Highlightly",
+      team: {
+        id: team.id,
+        name: team.name,
+        logo: team.logo || null
+      },
+      statistics: {
+        played,
+        wins,
+        draws,
+        losses,
+        goalsScored: gf,
+        goalsConceded: ga,
+        averageScored: Number((gf / played).toFixed(2)),
+        averageConceded: Number((ga / played).toFixed(2))
+      },
+      fixtures
+    });
+
+  } catch (e) {
+    res.status(502).json({
+      error: e.message
+    });
+  }
+});
+
 app.listen(PORT,()=>console.log(`Match Intelligence AI running at http://localhost:${PORT}`));
