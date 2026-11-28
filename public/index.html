@@ -535,6 +535,26 @@ $("analyse").onclick=async()=>{
   }
 };
 
+// WORKSPACE NAVIGATION
+const workspaceLinks = document.querySelectorAll(
+  'a[href="#match"], a[href="#prediction"], a[href="#form"], a[href="#statistics"], a[href="#audit"]'
+);
+
+workspaceLinks.forEach(link => {
+  link.addEventListener("click", event => {
+    event.preventDefault();
+
+    const workspace = link.getAttribute("href").substring(1);
+
+    document.querySelectorAll(".workspace-section").forEach(section => {
+      section.classList.toggle(
+        "active",
+        section.dataset.workspace === workspace
+      );
+    });
+  });
+});
+
 loadLeagues();
 </script>
 </body>
