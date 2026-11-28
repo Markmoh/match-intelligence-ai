@@ -160,6 +160,14 @@ footer{
   .kpi b{font-size:20px}
   .card{padding:15px}
 }
+  /* WORKSPACE NAVIGATION */
+.workspace-section {
+  display: none;
+}
+
+.workspace-section.active {
+  display: block;
+}
 </style>
 </head>
 
@@ -189,7 +197,7 @@ footer{
   Research the fixture. Evaluate the evidence. Understand the probabilities.
 </div>
 
-<section class="section" id="match">
+<section class="section workspace-section active" id="match" data-workspace="match">
   <div class="section-heading">
     <h2>Fixture configuration</h2>
     <span>01 / MATCH SETUP</span>
@@ -246,7 +254,7 @@ footer{
 
 <div class="result" id="result">
 
-<section class="section" id="prediction">
+<section class="section workspace-section" id="prediction" data-workspace="prediction">
   <div class="section-heading">
     <h2>Prediction studio</h2>
     <span>02 / MODEL OUTPUT</span>
@@ -267,9 +275,10 @@ footer{
       <div class="pick-name" id="pickName"></div>
     </div>
   </div>
+
 </section>
 
-<section class="section" id="form">
+<section class="section workspace-section" id="form" data-workspace="form">
   <div class="section-heading">
     <h2>Recent team form</h2>
     <span>03 / PERFORMANCE</span>
@@ -277,7 +286,7 @@ footer{
   <div class="card" id="recent"></div>
 </section>
 
-<section class="section">
+<section class="section workspace-section" id="h2hSection" data-workspace="analytics">
   <div class="section-heading">
     <h2>Head-to-head record</h2>
     <span>04 / HISTORICAL MEETINGS</span>
@@ -285,7 +294,7 @@ footer{
   <div class="card table-wrap" id="h2h"></div>
 </section>
 
-<section class="section" id="statistics">
+<section class="section workspace-section" id="statistics" data-workspace="analytics">
   <div class="section-heading">
     <h2>Squad availability</h2>
     <span>05 / INJURY INFORMATION</span>
@@ -293,7 +302,7 @@ footer{
   <div class="card note" id="injuries"></div>
 </section>
 
-<section class="section">
+<section class="section workspace-section" id="scoresSection" data-workspace="prediction">
   <div class="section-heading">
     <h2>Correct-score projections</h2>
     <span>06 / POISSON MODEL</span>
@@ -301,7 +310,7 @@ footer{
   <div class="card table-wrap" id="scores"></div>
 </section>
 
-<section class="section" id="audit">
+<section class="section workspace-section" id="auditSection" data-workspace="audit">
   <div class="section-heading">
     <h2>Research audit</h2>
     <span>07 / DATA TRANSPARENCY</span>
