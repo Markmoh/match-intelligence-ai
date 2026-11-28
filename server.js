@@ -581,6 +581,462 @@ app.post("/api/analyse", async (req, res) => {
   }
 });
 
+// ==========================================
+// MATCH INTELLIGENCE AI
+// PREDICTION INTELLIGENCE ENGINE v1.0
+// ==========================================
+
+app.post("/api/predictions", async (req, res) => {
+  try {
+    const { home, away, leagueId, season } = req.body || {};
+
+    if (!home || !away || !leagueId) {
+      return res.status(400).json({
+        ok: false,
+        error: "Home team, away team and league are required."
+      });
+    }
+
+    const getRows = body =>
+      Array.isArray(body) ? body :
+      Array.isArray(body?.data) ? body.data : [];
+
+    const getScore = match => {
+      const value = match.state?.score?.current;
+
+      if (typeof value !== "string") return null;
+
+      const found = value.match(/(\d+)\s*[-–:]\s*(\d+)/);
+
+      return found ? {
+        home: Number(found[1]),
+        away: Number(found[2])
+      } : null;
+    };
+
+    // Identify both teams.
+    const [homeBody, awayBody] = await Promise.all([
+      cached(`/teams?name=${enc(home)}&type=club`, 12 * 60 * 60 * 1000),
+      cached(`/teams?name=${enc(away)}&type=club`, 12 * 60 * 60 * 1000)
+    ]);
+
+    function findTeam(body, name) {
+      const teams = getRows(body);
+
+      return teams.find(t =>
+        String(t.name || "").toLowerCase() ===
+        String(name).toLowerCase()
+      ) || teams[0];
+    }
+
+    const homeTeam = findTeam(homeBody, home);
+    const awayTeam = findTeam(awayBody, away);
+
+    if (!homeTeam?.id || !awayTeam?.id) {
+      throw new Error("Could not identify both teams.");
+    }
+
+    if (String(homeTeam.id) === String(awayTeam.id)) {
+      throw new Error("Home and away teams cannot be identical.");
+    }
+
+    // Retrieve recent matches.
+    const [homeBodyForm, awayBodyForm] = await Promise.all([
+      cached(`/last-five-games?teamId=${homeTeam.id}`, 30 * 60 * 1000),
+      cached(`/last-five-games?teamId=${awayTeam.id}`, 30 * 60 * 1000)
+    ]);
+
+    function summarize(body, teamId) {
+      const matches = getRows(body);
+
+      let gf = 0;
+      let ga = 0;
+      let wins = 0;
+      let draws = 0;
+      let losses = 0;
+
+      const fixtures = [];
+
+      for (const match of matches) {
+        const score = getScore(match);
+        if (!score) continue;
+
+        const hid = String(match.homeTeam?.id);
+        const aid = String(match.awayTeam?.id);
+
+        let scored, conceded;
+
+        if (hid === String(teamId)) {
+          scored = score.home;
+          conceded = score.away;
+        } else if (aid === String(teamId)) {
+          scored = score.away;
+          conceded = score.home;
+        } else {
+          continue;
+        }
+
+        gf += scored;
+        ga += conceded;
+
+        const result =
+          scored > conceded ? "W" :
+          scored === conceded ? "D" : "L";
+
+        if (result === "W") wins++;
+        else if (result === "D") draws++;
+        else losses++;
+
+        fixtures.push({
+          date: match.date,
+          home: match.homeTeam?.name,
+          away: match.awayTeam?.name,
+          score: `${score.home}-${score.away}`,
+          result
+        });
+      }
+
+      const played = fixtures.length;
+
+      return {
+        played,
+        goalsScored: gf,
+        goalsConceded: ga,
+        averageScored: played ? gf / played : 0,
+        averageConceded: played ? ga / played : 0,
+        wins,
+        draws,
+        losses,
+        fixtures
+      };
+    }
+
+    const homeForm = summarize(homeBodyForm, homeTeam.id);
+    const awayForm = summarize(awayBodyForm, awayTeam.id);
+
+    if (!homeForm.played || !awayForm.played) {
+      throw new Error("Insufficient completed match data.");
+    }
+
+    // Expected goals.
+    const lambdaHome = Math.max(
+      0.15,
+      Math.min(5,
+        (homeForm.averageScored +
+         awayForm.averageConceded) / 2
+      )
+    );
+
+    const lambdaAway = Math.max(
+      0.15,
+      Math.min(5,
+        (awayForm.averageScored +
+         homeForm.averageConceded) / 2
+      )
+    );
+
+    // Poisson distribution.
+    function poisson(k, lambda) {
+      let factorial = 1;
+
+      for (let n = 2; n <= k; n++) {
+        factorial *= n;
+      }
+
+      return Math.exp(-lambda) *
+        Math.pow(lambda, k) / factorial;
+    }
+
+    // Build probability matrix.
+    const matrix = [];
+    let matrixTotal = 0;
+
+    for (let h = 0; h <= 12; h++) {
+      for (let a = 0; a <= 12; a++) {
+        const probability =
+          poisson(h, lambdaHome) *
+          poisson(a, lambdaAway);
+
+        matrix.push({ h, a, p: probability });
+        matrixTotal += probability;
+      }
+    }
+
+    // Normalize probabilities.
+    for (const item of matrix) {
+      item.p /= matrixTotal;
+    }
+
+    const round = value =>
+      Number((value * 100).toFixed(2));
+
+    const probability = condition =>
+      matrix.reduce(
+        (sum, item) =>
+          sum + (condition(item.h, item.a) ? item.p : 0),
+        0
+      );
+
+    // Core outcomes.
+    const homeWin = probability((h, a) => h > a);
+    const draw = probability((h, a) => h === a);
+    const awayWin = probability((h, a) => h < a);
+
+    // Goal markets.
+    const goalLines = [0.5, 1.5, 2.5, 3.5, 4.5];
+
+    const overUnder = goalLines.map(line => ({
+      line,
+      over: round(probability((h, a) => h + a > line)),
+      under: round(probability((h, a) => h + a < line))
+    }));
+
+    // Both teams to score.
+    const bttsYes = probability((h, a) => h > 0 && a > 0);
+    const bttsNo = 1 - bttsYes;
+
+    // Team goal totals.
+    function teamTotals(isHome) {
+      return goalLines.map(line => ({
+        line,
+        over: round(probability((h, a) =>
+          (isHome ? h : a) > line
+        )),
+        under: round(probability((h, a) =>
+          (isHome ? h : a) < line
+        ))
+      }));
+    }
+
+    // Double chance.
+    const doubleChance = {
+      "1X": round(homeWin + draw),
+      "X2": round(draw + awayWin),
+      "12": round(homeWin + awayWin)
+    };
+
+    // Draw No Bet.
+    const dnb = {
+      home: {
+        win: round(homeWin),
+        push: round(draw),
+        lose: round(awayWin),
+        conditionalWinProbability:
+          round(homeWin / (homeWin + awayWin))
+      },
+      away: {
+        win: round(awayWin),
+        push: round(draw),
+        lose: round(homeWin),
+        conditionalWinProbability:
+          round(awayWin / (homeWin + awayWin))
+      }
+    };
+
+    // European handicap.
+    function europeanHandicap(homeHandicap) {
+      const adjustedHome = probability((h, a) =>
+        h + homeHandicap > a
+      );
+
+      const adjustedDraw = probability((h, a) =>
+        h + homeHandicap === a
+      );
+
+      const adjustedAway = probability((h, a) =>
+        h + homeHandicap < a
+      );
+
+      return {
+        home: round(adjustedHome),
+        draw: round(adjustedDraw),
+        away: round(adjustedAway)
+      };
+    }
+
+    const europeanHandicaps = [-2, -1, 1, 2].map(line => ({
+      homeHandicap: line,
+      probabilities: europeanHandicap(line)
+    }));
+
+    // Asian half-goal handicaps.
+    function asianHalfHandicap(line) {
+      return {
+        homeWin: round(probability((h, a) =>
+          h + line > a
+        )),
+        push: round(probability((h, a) =>
+          h + line === a
+        )),
+        awayWin: round(probability((h, a) =>
+          h + line < a
+        ))
+      };
+    }
+
+    const asianHandicaps = [-1.5, -0.5, 0.5, 1.5].map(line => ({
+      homeHandicap: line,
+      probabilities: asianHalfHandicap(line)
+    }));
+
+    // Correct scores.
+    const correctScores = matrix
+      .map(item => ({
+        score: `${item.h}-${item.a}`,
+        probability: round(item.p)
+      }))
+      .sort((a, b) => b.probability - a.probability)
+      .slice(0, 12);
+
+    // Winning margins.
+    const winningMargins = {
+      homeBy2OrMore: round(
+        probability((h, a) => h - a >= 2)
+      ),
+      homeByExactly1: round(
+        probability((h, a) => h - a === 1)
+      ),
+      draw: round(draw),
+      awayByExactly1: round(
+        probability((h, a) => a - h === 1)
+      ),
+      awayBy2OrMore: round(
+        probability((h, a) => a - h >= 2)
+      )
+    };
+
+    // Clean sheets.
+    const cleanSheets = {
+      home: round(probability((h, a) => a === 0)),
+      away: round(probability((h, a) => h === 0))
+    };
+
+    // Highest-probability 1X2 selection.
+    const outcomes = [
+      { selection: "Home", probability: round(homeWin) },
+      { selection: "Draw", probability: round(draw) },
+      { selection: "Away", probability: round(awayWin) }
+    ].sort((a, b) => b.probability - a.probability);
+
+    const warnings = [
+      "This is a statistical projection, not a guaranteed result.",
+      "Recent form uses the latest available five completed matches.",
+      "The selected league is not yet used to filter historical team matches.",
+      "No opponent-strength adjustment or confirmed home advantage is applied.",
+      "Half-time, cards, corners, shots and player markets require additional data.",
+      "Correct-score probabilities are calculated from the same goal model."
+    ];
+
+    if (homeForm.played < 5 || awayForm.played < 5) {
+      warnings.push("One or both teams have fewer than five usable matches.");
+    }
+
+    res.json({
+      ok: true,
+      provider: "Highlightly",
+      engine: "Match Intelligence AI Poisson v1.0",
+      retrievedAt: new Date().toISOString(),
+
+      fixture: {
+        home: homeTeam.name,
+        away: awayTeam.name,
+        leagueId,
+        season: Number(season) || currentSeason()
+      },
+
+      teams: {
+        home: {
+          id: homeTeam.id,
+          name: homeTeam.name,
+          logo: homeTeam.logo || null,
+          form: homeForm
+        },
+        away: {
+          id: awayTeam.id,
+          name: awayTeam.name,
+          logo: awayTeam.logo || null,
+          form: awayForm
+        }
+      },
+
+      model: {
+        method: "Independent Poisson",
+        expectedGoals: {
+          home: Number(lambdaHome.toFixed(3)),
+          away: Number(lambdaAway.toFixed(3))
+        },
+        outcomes: {
+          home: round(homeWin),
+          draw: round(draw),
+          away: round(awayWin)
+        },
+        topOutcome: outcomes[0]
+      },
+
+      markets: {
+        coreOutcomes: {
+          oneXtwo: {
+            home: round(homeWin),
+            draw: round(draw),
+            away: round(awayWin)
+          },
+          doubleChance,
+          drawNoBet: dnb,
+          europeanHandicaps,
+          asianHandicaps
+        },
+
+        goals: {
+          overUnder,
+          bothTeamsToScore: {
+            yes: round(bttsYes),
+            no: round(bttsNo)
+          },
+          correctScores,
+          homeTeamTotals: teamTotals(true),
+          awayTeamTotals: teamTotals(false),
+          cleanSheets,
+          winningMargins
+        },
+
+        halfAndIntervals: {
+          available: false,
+          reason: "Half-time and event-timing data are not integrated."
+        },
+
+        disciplinary: {
+          available: false,
+          reason: "Reliable card and booking statistics are not integrated."
+        },
+
+        matchEvents: {
+          available: false,
+          reason: "Corner, shot, foul and penalty statistics are not integrated."
+        },
+
+        playerProps: {
+          available: false,
+          reason: "Player-level statistics and confirmed lineups are not integrated."
+        }
+      },
+
+      warnings
+    });
+
+  } catch (error) {
+    console.error("Prediction engine error:", error);
+
+    res.status(502).json({
+      ok: false,
+      error: error.message
+    });
+  }
+});
+
+// ==========================================
+// END PREDICTION INTELLIGENCE ENGINE v1.0
+// ==========================================
+
 app.get("/api/team-form", async (req, res) => {
   try {
     const name = String(req.query.name || "").trim();
