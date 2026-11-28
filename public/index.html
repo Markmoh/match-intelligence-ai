@@ -278,13 +278,39 @@ footer{
 
 </section>
 
+
 <section class="section workspace-section" id="form" data-workspace="form">
   <div class="section-heading">
-    <h2>Recent team form</h2>
-    <span>03 / PERFORMANCE</span>
+    <h2>Team Form Intelligence</h2>
+    <span>03 / PERFORMANCE RESEARCH</span>
   </div>
-  <div class="card" id="recent"></div>
+
+  <div class="card">
+    <div class="form-label">SEARCH FOOTBALL TEAM</div>
+    <input
+      id="teamFormSearch"
+      list="teamFormSuggestions"
+      placeholder="Start typing a team name..."
+      autocomplete="off"
+    >
+    <datalist id="teamFormSuggestions"></datalist>
+
+    <button id="teamFormAnalyse" style="margin-top:14px">
+      RESEARCH TEAM FORM →
+    </button>
+
+    <div id="teamFormStatus" class="note" style="margin-top:12px">
+      Search for a team to begin independent research.
+    </div>
+  </div>
+
+  <div class="card" id="teamFormResult" style="display:none;margin-top:15px">
+    <div id="teamFormIdentity"></div>
+    <div id="teamFormStats"></div>
+    <div id="teamFormMatches"></div>
+  </div>
 </section>
+
 
 <section class="section workspace-section" id="h2hSection" data-workspace="analytics">
   <div class="section-heading">
