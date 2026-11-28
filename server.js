@@ -3,6 +3,24 @@ import dotenv from "dotenv";
 
 dotenv.config();
 const app = express();
+// Allow browser-based API testing and frontend requests
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+  );
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+
+  next();
+});
 async function highlightly(path) {
   if (!HIGHLIGHTLY_KEY) {
     throw new Error("Highlightly API key is missing.");
