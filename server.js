@@ -297,75 +297,290 @@ app.get("/api/leagues", async (req, res) => {
 });
 
 
-app.post("/api/analyse", async (req,res) => {
+
+app.post("/api/analyse", async (req, res) => {
   try {
-    const {home, away, leagueId, season} = req.body || {};
-    if (!home || !away || !leagueId) return res.status(400).json({error:"Home team, away team and league are required."});
-    const yr = Number(season) || currentSeason();
-    const league = Number(leagueId);
-    const [homeSearch, awaySearch] = await Promise.all([
-      api(`/teams?search=${enc(home)}&league=${league}&season=${yr}`),
-      api(`/teams?search=${enc(away)}&league=${league}&season=${yr}`)
-    ]);
-    const pick = (data, name) => {
-      const teams = arr(data.response);
-      return teams.find(t=>t.team?.name?.toLowerCase()===name.toLowerCase()) || teams[0];
-    };
-    const ht = pick(homeSearch, home), at = pick(awaySearch, away);
-    if (!ht?.team?.id || !at?.team?.id) throw new Error("Could not match both team names in the selected league/season. Check spelling or choose the correct competition.");
-    const hid=ht.team.id, aid=at.team.id;
-    const [hfx,afx,h2h,hstats,astats,hinj,ainj] = await Promise.all([
-      api(`/fixtures?team=${hid}&last=10&season=${yr}`),
-      api(`/fixtures?team=${aid}&last=10&season=${yr}`),
-      api(`/fixtures/headtohead?h2h=${hid}-${aid}&last=10`),
-      api(`/teams/statistics?league=${league}&season=${yr}&team=${hid}`),
-      api(`/teams/statistics?league=${league}&season=${yr}&team=${aid}`),
-      api(`/injuries?team=${hid}&season=${yr}`),
-      api(`/injuries?team=${aid}&season=${yr}`)
-    ]);
-    const finished = data => arr(data.response).filter(f=>["FT","AET","PEN"].includes(f.fixture?.status?.short));
-    const summarize = (data, teamId) => {
-      const fs=finished(data);
-      let gf=[],ga=[],wins=0,draws=0,losses=0;
-      for(const f of fs){
-        const isHome=f.teams?.home?.id===teamId;
-        const scored=Number(isHome?f.goals?.home:f.goals?.away);
-        const conceded=Number(isHome?f.goals?.away:f.goals?.home);
-        if(!Number.isFinite(scored)||!Number.isFinite(conceded)) continue;
-        gf.push(scored);ga.push(conceded);
-        if(scored>conceded)wins++;else if(scored===conceded)draws++;else losses++;
+    const { home, away, leagueId, season } = req.body || {};
+
+    if (!home || !away || !leagueId) {
+      return res.status(400).json({
+        error: "Home team, away team and league are required."
+      });
+    }
+
+    // Cache Highlightly responses to protect the daily API quota.
+    async function cached(path, ttl = 60 * 60 * 1000) {
+      const key = "hl_" + path;
+      const saved = globalThis[key];
+
+      if (saved && Date.now() - saved.at < ttl) {
+        return saved.data;
       }
-      return {played:gf.length, gf:avg(gf), ga:avg(ga), wins,draws,losses, fixtures:fs.slice(0,10).map(f=>({date:f.fixture?.date,home:f.teams?.home?.name,away:f.teams?.away?.name,score:`${f.goals?.home}-${f.goals?.away}`}))};
-    };
-    const hs=summarize(hfx,hid), as=summarize(afx,aid);
-    const statVal = (d,path) => path.split(".").reduce((o,k)=>o?.[k],d.response);
-    const hHomeFor=Number(statVal(hstats,"goals.for.average.home"));
-    const aAwayFor=Number(statVal(astats,"goals.for.average.away"));
-    const hHomeAgainst=Number(statVal(hstats,"goals.against.average.home"));
-    const aAwayAgainst=Number(statVal(astats,"goals.against.average.away"));
-    const hAttack=Number.isFinite(hHomeFor)&&hHomeFor>0?hHomeFor:hs.gf;
-    const aAttack=Number.isFinite(aAwayFor)&&aAwayFor>0?aAwayFor:as.gf;
-    const hConcede=Number.isFinite(hHomeAgainst)&&hHomeAgainst>0?hHomeAgainst:hs.ga;
-    const aConcede=Number.isFinite(aAwayAgainst)&&aAwayAgainst>0?aAwayAgainst:as.ga;
-    const lambdaH=(hAttack+aConcede)/2;
-    const lambdaA=(aAttack+hConcede)/2;
-    const poisson=(k,l)=>Math.exp(-l)*Math.pow(l,k)/[1,1,2,6,24,120,720,5040,40320,362880,3628800][k];
-    let p1=0,px=0,p2=0,scores=[];
-    for(let i=0;i<=10;i++)for(let j=0;j<=10;j++){const p=poisson(i,lambdaH)*poisson(j,lambdaA);scores.push({score:`${i}-${j}`,p});if(i>j)p1+=p;else if(i===j)px+=p;else p2+=p;}
-    const norm=p1+px+p2; p1/=norm;px/=norm;p2/=norm;
-    const outcomes=[{pick:"1",name:ht.team.name,p:p1},{pick:"X",name:"Draw",p:px},{pick:"2",name:at.team.name,p:p2}].sort((a,b)=>b.p-a.p);
-    const upcoming=arr((await api(`/fixtures?team=${hid}&next=10&season=${yr}`)).response);
-    const next=upcoming.find(f=>[f.teams?.home?.id,f.teams?.away?.id].includes(aid) && f.league?.id===league);
-    const h2hRows=finished(h2h).map(f=>({date:f.fixture?.date,home:f.teams?.home?.name,away:f.teams?.away?.name,score:`${f.goals?.home}-${f.goals?.away}`}));
+
+      const data = await highlightly(path);
+
+      globalThis[key] = {
+        at: Date.now(),
+        data
+      };
+
+      return data;
+    }
+
+    function rows(body) {
+      if (Array.isArray(body)) return body;
+      if (Array.isArray(body?.data)) return body.data;
+      return [];
+    }
+
+    // Search for both teams.
+    const [homeBody, awayBody] = await Promise.all([
+      cached(`/teams?name=${enc(home)}&type=club`, 12 * 60 * 60 * 1000),
+      cached(`/teams?name=${enc(away)}&type=club`, 12 * 60 * 60 * 1000)
+    ]);
+
+    function findTeam(body, name) {
+      const teams = rows(body);
+      return teams.find(t =>
+        String(t.name || "").toLowerCase() === name.toLowerCase()
+      ) || teams[0];
+    }
+
+    const ht = findTeam(homeBody, home);
+    const at = findTeam(awayBody, away);
+
+    if (!ht?.id || !at?.id) {
+      throw new Error(
+        "Could not identify both teams. Check their spelling."
+      );
+    }
+
+    const hid = ht.id;
+    const aid = at.id;
+
+    // Retrieve recent form and head-to-head records.
+    const [homeForm, awayForm, h2hBody] = await Promise.all([
+      cached(`/last-five-games?teamId=${hid}`, 30 * 60 * 1000),
+      cached(`/last-five-games?teamId=${aid}`, 30 * 60 * 1000),
+      cached(
+        `/head-2-head?teamIdOne=${hid}&teamIdTwo=${aid}`,
+        6 * 60 * 60 * 1000
+      )
+    ]);
+
+    // Highlightly provides the score as a string, e.g. "2 - 1".
+    function getScore(match) {
+      const value = match.state?.score?.current;
+
+      if (typeof value === "string") {
+        const found = value.match(/(\d+)\s*[-–:]\s*(\d+)/);
+        if (found) {
+          return {
+            home: Number(found[1]),
+            away: Number(found[2])
+          };
+        }
+      }
+
+      return null;
+    }
+
+    function summarize(body, teamId) {
+      const matches = rows(body);
+      const fixtures = [];
+
+      let gf = 0;
+      let ga = 0;
+      let wins = 0;
+      let draws = 0;
+      let losses = 0;
+
+      for (const match of matches) {
+        const score = getScore(match);
+        if (!score) continue;
+
+        const homeId = String(match.homeTeam?.id);
+        const awayId = String(match.awayTeam?.id);
+        const id = String(teamId);
+
+        let scored, conceded;
+
+        if (homeId === id) {
+          scored = score.home;
+          conceded = score.away;
+        } else if (awayId === id) {
+          scored = score.away;
+          conceded = score.home;
+        } else {
+          continue;
+        }
+
+        gf += scored;
+        ga += conceded;
+
+        if (scored > conceded) wins++;
+        else if (scored === conceded) draws++;
+        else losses++;
+
+        fixtures.push({
+          date: match.date,
+          home: match.homeTeam?.name,
+          away: match.awayTeam?.name,
+          score: `${score.home}-${score.away}`
+        });
+      }
+
+      const played = fixtures.length;
+
+      return {
+        played,
+        gf: played ? gf / played : 1.2,
+        ga: played ? ga / played : 1.2,
+        wins,
+        draws,
+        losses,
+        fixtures
+      };
+    }
+
+    const hs = summarize(homeForm, hid);
+    const as = summarize(awayForm, aid);
+
+    if (!hs.played || !as.played) {
+      throw new Error(
+        "Insufficient recent match data for one or both teams."
+      );
+    }
+
+    // Baseline goal expectation using recent form.
+    const lambdaH = Math.max(
+      0.15,
+      Math.min(4.5, (hs.gf + as.ga) / 2)
+    );
+
+    const lambdaA = Math.max(
+      0.15,
+      Math.min(4.5, (as.gf + hs.ga) / 2)
+    );
+
+    // Independent Poisson probability model.
+    function poisson(k, lambda) {
+      let factorial = 1;
+
+      for (let n = 2; n <= k; n++) {
+        factorial *= n;
+      }
+
+      return Math.exp(-lambda) *
+        Math.pow(lambda, k) / factorial;
+    }
+
+    let p1 = 0;
+    let px = 0;
+    let p2 = 0;
+    const scores = [];
+
+    for (let i = 0; i <= 10; i++) {
+      for (let j = 0; j <= 10; j++) {
+        const probability =
+          poisson(i, lambdaH) * poisson(j, lambdaA);
+
+        scores.push({
+          score: `${i}-${j}`,
+          p: probability
+        });
+
+        if (i > j) p1 += probability;
+        else if (i === j) px += probability;
+        else p2 += probability;
+      }
+    }
+
+    const total = p1 + px + p2;
+
+    p1 /= total;
+    px /= total;
+    p2 /= total;
+
+    const outcomes = [
+      { pick: "1", name: ht.name, p: p1 },
+      { pick: "X", name: "Draw", p: px },
+      { pick: "2", name: at.name, p: p2 }
+    ].sort((a, b) => b.p - a.p);
+
+    // Head-to-head history.
+    const h2hRows = rows(h2hBody)
+      .map(match => {
+        const score = getScore(match);
+        if (!score) return null;
+
+        return {
+          date: match.date,
+          home: match.homeTeam?.name,
+          away: match.awayTeam?.name,
+          score: `${score.home}-${score.away}`
+        };
+      })
+      .filter(Boolean);
+
     res.json({
-      provider:"API-Football", retrievedAt:new Date().toISOString(), season:yr,
-      fixture: next ? {date:next.fixture?.date, status:next.fixture?.status?.long, venue:next.fixture?.venue?.name} : null,
-      teams:{home:ht.team.name,away:at.team.name},
-      recent:{home:hs,away:as}, h2h:h2hRows,
-      injuries:{home:arr(hinj.response).map(x=>({player:x.player?.name,type:x.player?.type,reason:x.player?.reason})),away:arr(ainj.response).map(x=>({player:x.player?.name,type:x.player?.type,reason:x.player?.reason}))},
-      model:{lambdaHome:lambdaH,lambdaAway:lambdaA,probabilities:{home:p1,draw:px,away:p2},pick:outcomes[0],scores:scores.sort((a,b)=>b.p-a.p).slice(0,8)},
-      notes:["Baseline independent-Poisson estimate. Lambdas are the mean of available home/away team goal averages and recent match averages where available.","This API workflow does not independently verify manager changes, tactical systems, confirmed lineups or bookmaker prices. Those sections must be added through separate research sources before treating the report as complete.","Team statistics and injury coverage depend on competition and subscription coverage."]
+      provider: "Highlightly",
+      retrievedAt: new Date().toISOString(),
+      season: Number(season) || currentSeason(),
+
+      fixture: null,
+
+      teams: {
+        home: ht.name,
+        away: at.name
+      },
+
+      recent: {
+        home: hs,
+        away: as
+      },
+
+      h2h: h2hRows,
+
+      injuries: {
+        home: [],
+        away: []
+      },
+
+      model: {
+        lambdaHome: lambdaH,
+        lambdaAway: lambdaA,
+
+        probabilities: {
+          home: p1,
+          draw: px,
+          away: p2
+        },
+
+        pick: outcomes[0],
+
+        scores: scores
+          .sort((a, b) => b.p - a.p)
+          .slice(0, 8)
+      },
+
+      notes: [
+        "Data provider: Highlightly.",
+        "Recent form uses the latest five available matches.",
+        "The prediction uses a baseline independent-Poisson model.",
+        "Recent form is not adjusted for opponent strength, confirmed lineups or tactical changes.",
+        "Upcoming fixture details and injury information are not yet integrated.",
+        "Probabilities are estimates, not guarantees."
+      ]
     });
-  } catch(e) { res.status(502).json({error:e.message}); }
+
+  } catch (e) {
+    console.error("Highlightly analysis error:", e);
+
+    res.status(502).json({
+      error: e.message
+    });
+  }
 });
+
 app.listen(PORT,()=>console.log(`Match Intelligence AI running at http://localhost:${PORT}`));
