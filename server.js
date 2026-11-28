@@ -297,7 +297,23 @@ app.get("/api/leagues", async (req, res) => {
 });
 
 
+async function cached(path, ttl = 60 * 60 * 1000) {
+  const key = "hl_" + path;
+  const saved = globalThis[key];
 
+  if (saved && Date.now() - saved.at < ttl) {
+    return saved.data;
+  }
+
+  const data = await highlightly(path);
+
+  globalThis[key] = {
+    at: Date.now(),
+    data
+  };
+
+  return data;
+}
 app.post("/api/analyse", async (req, res) => {
   try {
     const { home, away, leagueId, season } = req.body || {};
@@ -308,25 +324,7 @@ app.post("/api/analyse", async (req, res) => {
       });
     }
 
-    // Cache Highlightly responses to protect the daily API quota.
-    async function cached(path, ttl = 60 * 60 * 1000) {
-      const key = "hl_" + path;
-      const saved = globalThis[key];
-
-      if (saved && Date.now() - saved.at < ttl) {
-        return saved.data;
-      }
-
-      const data = await highlightly(path);
-
-      globalThis[key] = {
-        at: Date.now(),
-        data
-      };
-
-      return data;
-    }
-
+    
     function rows(body) {
       if (Array.isArray(body)) return body;
       if (Array.isArray(body?.data)) return body.data;
