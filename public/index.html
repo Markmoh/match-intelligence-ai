@@ -569,7 +569,7 @@ const workspaceLinks = document.querySelectorAll(
 workspaceLinks.forEach(link => {
   link.addEventListener("click", event => {
     event.preventDefault();
-
+$("result").style.display = "block";
     const target = link.getAttribute("href").substring(1);
 const workspace = target === "statistics" ? "analytics" : target;
     document.querySelectorAll(".workspace-section").forEach(section => {
