@@ -8,165 +8,518 @@
 <title>MATCH INTELLIGENCE AI</title>
 
 <style>
-:root{
-  --bg:#10141c;
-  --panel:#191f2b;
-  --panel2:#202938;
-  --line:#303b4c;
-  --text:#f4f6fa;
-  --muted:#9ca9bb;
-  --red:#ed424d;
-  --gold:#e8b957;
-  --green:#36c98b;
+:root {
+  --bg: #10141c;
+  --panel: #191f2b;
+  --panel2: #202938;
+  --line: #303b4c;
+  --text: #f4f6fa;
+  --muted: #9ca9bb;
+  --red: #ed424d;
+  --gold: #e8b957;
+  --green: #36c98b;
+  --blue: #368bdb;
 }
-*{box-sizing:border-box}
-body{
-  margin:0;background:var(--bg);color:var(--text);
-  font-family:Arial,Helvetica,sans-serif;
+
+* {
+  box-sizing: border-box;
 }
-header{
-  background:#151b25;border-bottom:1px solid var(--line);
-  padding:17px 5%;
-  display:flex;align-items:center;justify-content:space-between;
-  gap:15px;
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
 }
-.brand{font-size:19px;font-weight:900;letter-spacing:1px}
-.brand span{color:var(--red)}
-.header-right{font-size:11px;color:var(--muted);text-align:right}
-.live-dot{
-  display:inline-block;width:8px;height:8px;
-  border-radius:50%;background:var(--green);margin-right:6px
+
+header {
+  background: #151b25;
+  border-bottom: 1px solid var(--line);
+  padding: 17px 5%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
 }
-nav{
-  display:flex;gap:24px;padding:13px 5%;
-  background:#111720;border-bottom:1px solid var(--line);
-  overflow-x:auto;white-space:nowrap;
+
+.brand {
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: 1px;
 }
-nav a{color:var(--muted);font-size:12px;text-decoration:none;font-weight:bold}
-nav a:hover{color:white}
-main{max-width:1200px;margin:auto;padding:25px 18px}
-.eyebrow{
-  color:var(--red);font-size:11px;font-weight:900;
-  letter-spacing:2px;text-transform:uppercase
+
+.brand span {
+  color: var(--gold);
 }
-.page-title{font-size:29px;font-weight:900;margin:7px 0}
-.subtitle{color:var(--muted);font-size:13px;line-height:1.6}
-.section{margin-top:25px}
-.section-heading{
-  display:flex;justify-content:space-between;align-items:center;
-  gap:12px;margin-bottom:13px
+
+.header-right {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: right;
 }
-.section-heading h2{font-size:16px;margin:0}
-.section-heading span{font-size:10px;color:var(--muted)}
-.card{
-  background:var(--panel);border:1px solid var(--line);
-  border-radius:13px;padding:19px;margin-bottom:15px;
+
+.live-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  margin-right: 6px;
 }
-.match-banner{
-  background:linear-gradient(115deg,#222b3a,#171d28);
-  border:1px solid var(--line);border-radius:15px;
-  padding:25px 20px;
+
+nav {
+  display: flex;
+  gap: 24px;
+  padding: 13px 5%;
+  background: #111720;
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+  white-space: nowrap;
 }
-.match-top{
-  display:flex;justify-content:space-between;
-  color:var(--muted);font-size:11px;margin-bottom:25px;
+
+nav a {
+  color: var(--muted);
+  font-size: 12px;
+  text-decoration: none;
+  font-weight: bold;
+  padding-bottom: 5px;
+  border-bottom: 2px solid transparent;
 }
-.teams{
-  display:grid;grid-template-columns:1fr 80px 1fr;
-  align-items:center;text-align:center;gap:10px;
+
+nav a.active {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
 }
-.team-name{font-size:19px;font-weight:900;overflow-wrap:anywhere}
-.team-label{font-size:10px;color:var(--muted);margin-top:8px}
-.vs{font-size:19px;font-weight:900;color:var(--gold)}
-.form-label{
-  font-size:11px;color:var(--muted);font-weight:bold;
-  margin-bottom:8px;display:block
+
+main {
+  max-width: 1200px;
+  margin: auto;
+  padding: 25px 18px;
 }
-input{
-  width:100%;background:#101722;border:1px solid var(--line);
-  padding:13px;border-radius:8px;color:white;font-size:14px;
-  outline:none;
+
+.eyebrow {
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
-input:focus{border-color:var(--gold)}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.competition{margin-top:16px}
-button{
-  border:0;border-radius:8px;padding:15px;
-  background:var(--red);color:white;font-size:13px;
-  font-weight:900;letter-spacing:1px;cursor:pointer;
+
+.page-title {
+  font-size: 29px;
+  font-weight: 900;
+  margin: 7px 0;
 }
-button:hover{filter:brightness(1.1)}
-#analyse{width:100%;margin-top:18px}
-.status{
-  background:#101722;border:1px solid var(--line);
-  padding:13px;border-radius:8px;color:var(--muted);
-  font-size:12px;margin-top:13px;line-height:1.5;
+
+.subtitle {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
 }
-.result{display:none}
-.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.kpi{
-  background:var(--panel2);border-radius:9px;
-  padding:16px 8px;text-align:center;
+
+.section {
+  margin-top: 25px;
 }
-.kpi span{font-size:10px;color:var(--muted);font-weight:bold}
-.kpi b{display:block;font-size:25px;margin-top:8px}
-.probability{
-  background:var(--panel2);padding:13px;
-  border-radius:9px;margin-top:12px;
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 13px;
 }
-.prob-head{display:flex;justify-content:space-between;gap:10px;font-size:12px}
-.bar{height:8px;background:#303b4c;border-radius:10px;margin-top:9px;overflow:hidden}
-.fill{height:100%;background:var(--red);border-radius:10px}
-.pick-box{
-  margin-top:16px;background:#282b2b;
-  border-left:4px solid var(--gold);
-  padding:17px;border-radius:7px;
+
+.section-heading h2 {
+  font-size: 16px;
+  margin: 0;
 }
-.pick-label{font-size:10px;color:var(--gold);font-weight:bold;letter-spacing:1px}
-.pick{font-size:28px;font-weight:900;margin-top:6px}
-.pick-name{font-size:12px;color:var(--muted);margin-top:5px}
-.form-team{font-size:14px;font-weight:bold;margin:14px 0 8px}
-.form-records{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
-.form-badge{
-  width:28px;height:28px;border-radius:5px;
-  display:grid;place-items:center;font-size:11px;font-weight:bold;
-  background:#303b4c;
+
+.section-heading span {
+  font-size: 10px;
+  color: var(--muted);
 }
-.form-W{background:#176e4d}
-.form-D{background:#94712e}
-.form-L{background:#963d43}
-table{width:100%;border-collapse:collapse;font-size:12px}
-td,th{padding:11px 7px;border-bottom:1px solid var(--line);text-align:left}
-th{color:var(--muted);font-size:10px;text-transform:uppercase}
-td{color:#e0e6ef}
-.table-wrap{overflow-x:auto}
-.note{font-size:12px;color:var(--muted);line-height:1.7}
-.error{color:#ff9292}
-footer{
-  border-top:1px solid var(--line);padding:25px 15px;
-  text-align:center;color:var(--muted);font-size:11px;
-  margin-top:40px;
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  padding: 19px;
+  margin-bottom: 15px;
 }
-@media(max-width:650px){
-  header{padding:15px}
-  .brand{font-size:15px}
-  main{padding:20px 13px}
-  .page-title{font-size:24px}
-  .match-banner{padding:19px 12px}
-  .teams{grid-template-columns:1fr 35px 1fr;gap:5px}
-  .team-name{font-size:15px}
-  .vs{font-size:15px}
-  .grid{grid-template-columns:1fr}
-  .kpi b{font-size:20px}
-  .card{padding:15px}
+
+.match-banner {
+  background: linear-gradient(115deg, #222b3a, #171d28);
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  padding: 25px 20px;
 }
-  /* WORKSPACE NAVIGATION */
+
+.match-top {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 11px;
+  margin-bottom: 25px;
+}
+
+.teams {
+  display: grid;
+  grid-template-columns: 1fr 80px 1fr;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+}
+
+.team-name {
+  font-size: 19px;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.team-label {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 8px;
+}
+
+.vs {
+  font-size: 19px;
+  font-weight: 900;
+  color: var(--gold);
+}
+
+.form-label {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: bold;
+  margin-bottom: 8px;
+  display: block;
+}
+
+input {
+  width: 100%;
+  background: #101722;
+  border: 1px solid var(--line);
+  padding: 13px;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  outline: none;
+}
+
+input:focus {
+  border-color: var(--gold);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.competition {
+  margin-top: 16px;
+}
+
+button {
+  border: 0;
+  border-radius: 8px;
+  padding: 15px;
+  background: var(--red);
+  color: white;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+button:hover {
+  filter: brightness(1.1);
+}
+
+button:disabled {
+  opacity: .6;
+  cursor: wait;
+}
+
+#analyse {
+  width: 100%;
+  margin-top: 18px;
+}
+
+.status {
+  background: #101722;
+  border: 1px solid var(--line);
+  padding: 13px;
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 13px;
+  line-height: 1.5;
+}
+
+.result {
+  display: none;
+}
+
 .workspace-section {
   display: none;
 }
 
 .workspace-section.active {
   display: block;
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.kpi {
+  background: var(--panel2);
+  border-radius: 9px;
+  padding: 16px 8px;
+  text-align: center;
+}
+
+.kpi span {
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: bold;
+}
+
+.kpi b {
+  display: block;
+  font-size: 25px;
+  margin-top: 8px;
+}
+
+.probability {
+  background: var(--panel2);
+  padding: 13px;
+  border-radius: 9px;
+  margin-top: 12px;
+}
+
+.prob-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.bar {
+  height: 8px;
+  background: #303b4c;
+  border-radius: 10px;
+  margin-top: 9px;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  background: var(--gold);
+  border-radius: 10px;
+}
+
+.pick-box {
+  margin-top: 16px;
+  background: #282b2b;
+  border-left: 4px solid var(--gold);
+  padding: 17px;
+  border-radius: 7px;
+}
+
+.pick-label {
+  font-size: 10px;
+  color: var(--gold);
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.pick {
+  font-size: 28px;
+  font-weight: 900;
+  margin-top: 6px;
+}
+
+.pick-name {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 5px;
+}
+
+.form-team {
+  font-size: 14px;
+  font-weight: bold;
+  margin: 14px 0 8px;
+}
+
+.form-records {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 10px 0;
+}
+
+.form-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 5px;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: bold;
+  background: #303b4c;
+}
+
+.form-W {
+  background: #176e4d;
+}
+
+.form-D {
+  background: #94712e;
+}
+
+.form-L {
+  background: #963d43;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 9px;
+  margin-top: 14px;
+}
+
+.stat {
+  background: var(--panel2);
+  border-radius: 8px;
+  padding: 13px 7px;
+  text-align: center;
+}
+
+.stat strong {
+  display: block;
+  font-size: 19px;
+}
+
+.stat span {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  margin-top: 5px;
+}
+
+.match-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+}
+
+.match-row:last-child {
+  border-bottom: 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+td, th {
+  padding: 11px 7px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+
+th {
+  color: var(--muted);
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+td {
+  color: #e0e6ef;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.note {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.error {
+  color: #ff9292;
+}
+
+footer {
+  border-top: 1px solid var(--line);
+  padding: 25px 15px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 40px;
+}
+
+@media(max-width:650px) {
+  header {
+    padding: 15px;
+  }
+
+  .brand {
+    font-size: 15px;
+  }
+
+  main {
+    padding: 20px 13px;
+  }
+
+  .page-title {
+    font-size: 24px;
+  }
+
+  .match-banner {
+    padding: 19px 12px;
+  }
+
+  .teams {
+    grid-template-columns: 1fr 35px 1fr;
+    gap: 5px;
+  }
+
+  .team-name {
+    font-size: 15px;
+  }
+
+  .vs {
+    font-size: 15px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .kpi b {
+    font-size: 20px;
+  }
+
+  .card {
+    padding: 15px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 </style>
 </head>
@@ -175,14 +528,15 @@ footer{
 
 <header>
   <div class="brand">MATCH <span>INTELLIGENCE</span> AI</div>
+
   <div class="header-right">
     <span class="live-dot"></span> RESEARCH ENGINE<br>
     FOOTBALL ANALYTICS
   </div>
 </header>
 
-<nav>
-  <a href="#match">MATCH CENTRE</a>
+<nav id="mainNavigation">
+  <a href="#match" class="active">MATCH CENTRE</a>
   <a href="#prediction">PREDICTIONS</a>
   <a href="#form">TEAM FORM</a>
   <a href="#statistics">ANALYTICS</a>
@@ -192,12 +546,16 @@ footer{
 <main>
 
 <div class="eyebrow">THE FOOTBALL INTELLIGENCE STUDIO</div>
-<div class="page-title">MATCH CENTRE</div>
-<div class="subtitle">
+<div class="page-title" id="pageTitle">MATCH CENTRE</div>
+
+<div class="subtitle" id="pageSubtitle">
   Research the fixture. Evaluate the evidence. Understand the probabilities.
 </div>
 
-<section class="section workspace-section active" id="match" data-workspace="match">
+<!-- MATCH CENTRE -->
+<section class="section workspace-section active"
+  id="match" data-workspace="match">
+
   <div class="section-heading">
     <h2>Fixture configuration</h2>
     <span>01 / MATCH SETUP</span>
@@ -214,7 +572,9 @@ footer{
         <div class="team-name" id="homeDisplay">HOME TEAM</div>
         <div class="team-label">HOME</div>
       </div>
+
       <div class="vs">VS</div>
+
       <div>
         <div class="team-name" id="awayDisplay">AWAY TEAM</div>
         <div class="team-label">AWAY</div>
@@ -225,124 +585,180 @@ footer{
   <div class="card" style="margin-top:14px">
     <div class="grid">
       <div>
-        <label class="form-label">HOME TEAM</label>
+        <label class="form-label" for="home">HOME TEAM</label>
         <input id="home" placeholder="e.g. Orlando Pirates">
       </div>
+
       <div>
-        <label class="form-label">AWAY TEAM</label>
+        <label class="form-label" for="away">AWAY TEAM</label>
         <input id="away" placeholder="e.g. Sekhukhune United">
       </div>
     </div>
 
     <div class="competition">
-      <label class="form-label">LEAGUE / COMPETITION</label>
+      <label class="form-label" for="leagueSearch">
+        LEAGUE / COMPETITION
+      </label>
+
       <input id="leagueSearch" list="leagueList"
         placeholder="Search competitions...">
+
       <datalist id="leagueList"></datalist>
       <input id="leagueId" type="hidden">
+
       <div class="note" id="leagueInfo" style="margin-top:8px">
         Connecting to competition database...
       </div>
     </div>
 
     <button id="analyse">RESEARCH & ANALYSE MATCH →</button>
+
     <div class="status" id="status">
       Awaiting fixture selection.
     </div>
   </div>
+
+  <!-- Recent research belongs exclusively to Match Centre -->
+  <div class="card" id="recent" style="display:none"></div>
+
 </section>
+
+<!-- RESULTS WORKSPACE WRAPPER -->
 <div class="result" id="result">
-<div class="card" id="recent"></div>
 
-<section class="section workspace-section" id="prediction" data-workspace="prediction">
-  <div class="section-heading">
-    <h2>Prediction studio</h2>
-    <span>02 / MODEL OUTPUT</span>
-  </div>
+  <!-- PREDICTIONS -->
+  <section class="section workspace-section"
+    id="prediction" data-workspace="prediction">
 
-  <div class="card">
-    <div class="kpis">
-      <div class="kpi"><span>HOME GOALS λ</span><b id="lh">—</b></div>
-      <div class="kpi"><span>AWAY GOALS λ</span><b id="la">—</b></div>
-      <div class="kpi"><span>TOTAL GOALS λ</span><b id="lt">—</b></div>
+    <div class="section-heading">
+      <h2>Prediction studio</h2>
+      <span>02 / MODEL OUTPUT</span>
     </div>
 
-    <div id="probs"></div>
+    <div class="card">
+      <div class="kpis">
+        <div class="kpi">
+          <span>HOME GOALS λ</span>
+          <b id="lh">—</b>
+        </div>
 
-    <div class="pick-box">
-      <div class="pick-label">MODEL'S TOP OUTCOME</div>
-      <div class="pick" id="pick">—</div>
-      <div class="pick-name" id="pickName"></div>
+        <div class="kpi">
+          <span>AWAY GOALS λ</span>
+          <b id="la">—</b>
+        </div>
+
+        <div class="kpi">
+          <span>TOTAL GOALS λ</span>
+          <b id="lt">—</b>
+        </div>
+      </div>
+
+      <div id="probs"></div>
+
+      <div class="pick-box">
+        <div class="pick-label">MODEL'S TOP OUTCOME</div>
+        <div class="pick" id="pick">—</div>
+        <div class="pick-name" id="pickName"></div>
+      </div>
     </div>
-  </div>
 
-</section>
-
-
-<section class="section workspace-section" id="form" data-workspace="form">
-  <div class="section-heading">
-    <h2>Team Form Intelligence</h2>
-    <span>03 / PERFORMANCE RESEARCH</span>
-  </div>
-
-  <div class="card">
-    <div class="form-label">SEARCH FOOTBALL TEAM</div>
-    <input
-      id="teamFormSearch"
-      list="teamFormSuggestions"
-      placeholder="Start typing a team name..."
-      autocomplete="off"
-    >
-    <datalist id="teamFormSuggestions"></datalist>
-
-    <button id="teamFormAnalyse" style="margin-top:14px">
-      RESEARCH TEAM FORM →
-    </button>
-
-    <div id="teamFormStatus" class="note" style="margin-top:12px">
-      Search for a team to begin independent research.
+    <div class="section-heading">
+      <h2>Correct-score projections</h2>
+      <span>03 / POISSON MODEL</span>
     </div>
-  </div>
 
-  <div class="card" id="teamFormResult" style="display:none;margin-top:15px">
-    <div id="teamFormIdentity"></div>
-    <div id="teamFormStats"></div>
-    <div id="teamFormMatches"></div>
-  </div>
-</section>
+    <div class="card table-wrap" id="scores">
+      <p class="note">Complete a match analysis to view projections.</p>
+    </div>
 
+  </section>
 
-<section class="section workspace-section" id="h2hSection" data-workspace="analytics">
-  <div class="section-heading">
-    <h2>Head-to-head record</h2>
-    <span>04 / HISTORICAL MEETINGS</span>
-  </div>
-  <div class="card table-wrap" id="h2h"></div>
-</section>
+  <!-- TEAM FORM -->
+  <section class="section workspace-section"
+    id="form" data-workspace="form">
 
-<section class="section workspace-section" id="statistics" data-workspace="analytics">
-  <div class="section-heading">
-    <h2>Squad availability</h2>
-    <span>05 / INJURY INFORMATION</span>
-  </div>
-  <div class="card note" id="injuries"></div>
-</section>
+    <div class="section-heading">
+      <h2>Team Form Intelligence</h2>
+      <span>04 / PERFORMANCE RESEARCH</span>
+    </div>
 
-<section class="section workspace-section" id="scoresSection" data-workspace="prediction">
-  <div class="section-heading">
-    <h2>Correct-score projections</h2>
-    <span>06 / POISSON MODEL</span>
-  </div>
-  <div class="card table-wrap" id="scores"></div>
-</section>
+    <div class="card">
+      <label class="form-label" for="teamFormSearch">
+        SEARCH FOOTBALL TEAM
+      </label>
 
-<section class="section workspace-section" id="auditSection" data-workspace="audit">
-  <div class="section-heading">
-    <h2>Research audit</h2>
-    <span>07 / DATA TRANSPARENCY</span>
-  </div>
-  <div class="card note" id="audit"></div>
-</section>
+      <input
+        id="teamFormSearch"
+        list="teamFormSuggestions"
+        placeholder="Start typing a team name..."
+        autocomplete="off"
+      >
+
+      <datalist id="teamFormSuggestions"></datalist>
+
+      <button id="teamFormAnalyse" style="margin-top:14px">
+        RESEARCH TEAM FORM →
+      </button>
+
+      <div id="teamFormStatus" class="note" style="margin-top:12px">
+        Search for a team to begin independent research.
+      </div>
+    </div>
+
+    <div class="card" id="teamFormResult"
+      style="display:none;margin-top:15px">
+
+      <div id="teamFormIdentity"></div>
+      <div id="teamFormStats"></div>
+      <div id="teamFormMatches"></div>
+
+    </div>
+
+  </section>
+
+  <!-- ANALYTICS -->
+  <section class="section workspace-section"
+    id="h2hSection" data-workspace="analytics">
+
+    <div class="section-heading">
+      <h2>Head-to-head record</h2>
+      <span>05 / HISTORICAL MEETINGS</span>
+    </div>
+
+    <div class="card table-wrap" id="h2h">
+      <p class="note">Complete a match analysis to view historical meetings.</p>
+    </div>
+
+  </section>
+
+  <section class="section workspace-section"
+    id="statistics" data-workspace="analytics">
+
+    <div class="section-heading">
+      <h2>Squad availability</h2>
+      <span>06 / INJURY INFORMATION</span>
+    </div>
+
+    <div class="card note" id="injuries">
+      Squad information will appear after match analysis.
+    </div>
+
+  </section>
+
+  <!-- DATA AUDIT -->
+  <section class="section workspace-section"
+    id="auditSection" data-workspace="audit">
+
+    <div class="section-heading">
+      <h2>Research audit</h2>
+      <span>07 / DATA TRANSPARENCY</span>
+    </div>
+
+    <div class="card note" id="audit">
+      Complete a match analysis to view the research audit.
+    </div>
+
+  </section>
 
 </div>
 </main>
@@ -353,247 +769,366 @@ footer{
 </footer>
 
 <script>
-let leagues=[];
+let leagues = [];
 
-const $=id=>document.getElementById(id);
+const $ = id => document.getElementById(id);
 
-function safe(value){
-  return String(value??"").replace(/[&<>"']/g,c=>({
-    "&":"&amp;","<":"&lt;",">":"&gt;",
-    '"':"&quot;","'":"&#39;"
+function safe(value) {
+  return String(value ?? "").replace(/[&<>"']/g, c => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
   })[c]);
 }
 
-function pct(x){
-  return (100*Number(x||0)).toFixed(1)+"%";
+function pct(x) {
+  return (100 * Number(x || 0)).toFixed(1) + "%";
 }
 
-function tableRows(xs){
-  if(!xs?.length) return '<p class="note">No covered data returned.</p>';
+function tableRows(xs) {
+  if (!xs?.length) {
+    return '<p class="note">No covered data returned.</p>';
+  }
 
-  return '<table><thead><tr><th>Date</th><th>Fixture</th><th>Score</th></tr></thead><tbody>'+
-    xs.map(x=>`<tr>
-      <td>${x.date?safe(new Date(x.date).toLocaleDateString()):"—"}</td>
-      <td>${safe(x.home||"")} vs ${safe(x.away||"")}</td>
-      <td><b>${safe(x.score||"—")}</b></td>
-    </tr>`).join("")+
+  return '<table><thead><tr><th>Date</th><th>Fixture</th><th>Score</th></tr></thead><tbody>' +
+    xs.map(x => `<tr>
+      <td>${x.date ? safe(new Date(x.date).toLocaleDateString()) : "—"}</td>
+      <td>${safe(x.home || "")} vs ${safe(x.away || "")}</td>
+      <td><b>${safe(x.score || "—")}</b></td>
+    </tr>`).join("") +
     '</tbody></table>';
 }
 
-function renderForm(team,data){
-  const fixtures=data.fixtures||[];
-  let badges=fixtures.map(f=>{
-    const score=String(f.score||"").split("-");
-    if(score.length!==2) return "?";
-    const homeGoals=Number(score[0]);
-    const awayGoals=Number(score[1]);
-    const goals=fixtures.length?true:false;
-    return goals?(homeGoals===awayGoals?"D":""):"";
-  });
+function renderForm(team, data) {
+  const fixtures = data.fixtures || [];
 
-  const form=fixtures.map(f=>{
-    const parts=String(f.score||"").split("-");
-    if(parts.length!==2)return "?";
-    const hg=Number(parts[0]),ag=Number(parts[1]);
-    const teamIsHome=f.home===team;
-    const scored=teamIsHome?hg:ag;
-    const conceded=teamIsHome?ag:hg;
-    return scored>conceded?"W":scored===conceded?"D":"L";
+  const form = fixtures.map(f => {
+    const parts = String(f.score || "").split("-");
+
+    if (parts.length !== 2) return "?";
+
+    const hg = Number(parts[0]);
+    const ag = Number(parts[1]);
+
+    const teamIsHome = f.home === team;
+    const scored = teamIsHome ? hg : ag;
+    const conceded = teamIsHome ? ag : hg;
+
+    return scored > conceded ? "W" :
+      scored === conceded ? "D" : "L";
   });
 
   return `
     <div class="form-team">${safe(team)}</div>
+
     <div class="form-records">
-      ${form.map(x=>`<span class="form-badge form-${x}">${x}</span>`).join("")}
+      ${form.map(x =>
+        `<span class="form-badge form-${x}">${x}</span>`
+      ).join("")}
     </div>
+
     <div class="note">
-      Wins: ${data.wins??0} · Draws: ${data.draws??0} ·
-      Losses: ${data.losses??0}<br>
-      Average goals scored: ${data.gf??"N/A"} ·
-      Average conceded: ${data.ga??"N/A"}
+      Wins: ${data.wins ?? 0} ·
+      Draws: ${data.draws ?? 0} ·
+      Losses: ${data.losses ?? 0}<br>
+
+      Average goals scored: ${data.gf ?? "N/A"} ·
+      Average conceded: ${data.ga ?? "N/A"}
     </div>
+
     <div class="table-wrap" style="margin-top:12px">
       ${tableRows(fixtures)}
     </div>`;
 }
 
-async function loadLeagues(){
-  try{
-    const r=await fetch("/api/leagues");
-    const j=await r.json();
-    if(!r.ok)throw Error(j.error||"Could not load competitions.");
+// WORKSPACE NAVIGATION
+const workspaceInfo = {
+  match: {
+    title: "MATCH CENTRE",
+    subtitle: "Configure fixtures and initiate football research."
+  },
+  prediction: {
+    title: "PREDICTION STUDIO",
+    subtitle: "Evaluate probabilities, expected goals and score projections."
+  },
+  form: {
+    title: "TEAM FORM",
+    subtitle: "Independently investigate recent team performance."
+  },
+  analytics: {
+    title: "ANALYTICS",
+    subtitle: "Explore historical meetings and squad information."
+  },
+  audit: {
+    title: "DATA AUDIT",
+    subtitle: "Review research sources, retrieval details and limitations."
+  }
+};
 
-    leagues=j.leagues||[];
+function showWorkspace(workspace) {
+  document.querySelectorAll(".workspace-section").forEach(section => {
+    section.classList.toggle(
+      "active",
+      section.dataset.workspace === workspace
+    );
+  });
 
-    $("leagueList").innerHTML=leagues.map(x=>
+  // Reveal the results container when a research workspace is opened.
+  if (workspace !== "match") {
+    $("result").style.display = "block";
+  }
+
+  // Update navigation highlight.
+  document.querySelectorAll("#mainNavigation a").forEach(link => {
+    const target = link.getAttribute("href").substring(1);
+    const mapped = target === "statistics" ? "analytics" : target;
+
+    link.classList.toggle("active", mapped === workspace);
+  });
+
+  $("pageTitle").textContent = workspaceInfo[workspace].title;
+  $("pageSubtitle").textContent = workspaceInfo[workspace].subtitle;
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+document.querySelectorAll("#mainNavigation a").forEach(link => {
+  link.addEventListener("click", event => {
+    event.preventDefault();
+
+    const target = link.getAttribute("href").substring(1);
+    const workspace = target === "statistics" ? "analytics" : target;
+
+    showWorkspace(workspace);
+  });
+});
+
+// LOAD COMPETITIONS
+async function loadLeagues() {
+  try {
+    const r = await fetch("/api/leagues");
+    const j = await r.json();
+
+    if (!r.ok) {
+      throw Error(j.error || "Could not load competitions.");
+    }
+
+    leagues = j.leagues || [];
+
+    $("leagueList").innerHTML = leagues.map(x =>
       `<option value="${safe(x.name)} — ${safe(x.country)} (${safe(x.type)})"></option>`
     ).join("");
 
-    $("leagueInfo").textContent=
+    $("leagueInfo").textContent =
       `${leagues.length} competitions loaded. Search and select one.`;
 
-    $("leagueSearch").placeholder=
-      "Search "+leagues.length+" competitions...";
+    $("leagueSearch").placeholder =
+      "Search " + leagues.length + " competitions...";
 
-  }catch(e){
-    $("leagueInfo").textContent=e.message;
-    $("status").textContent="Competition service needs attention.";
+  } catch (e) {
+    $("leagueInfo").textContent = e.message;
+    $("status").textContent = "Competition service needs attention.";
   }
 }
 
-$("leagueSearch").addEventListener("change",()=>{
-  const s=$("leagueSearch").value.toLowerCase();
+// LEAGUE SELECTION
+$("leagueSearch").addEventListener("change", () => {
+  const s = $("leagueSearch").value.toLowerCase();
 
-  const l=leagues.find(x=>
-    (`${x.name} — ${x.country} (${x.type})`).toLowerCase()===s
-  )||leagues.find(x=>x.name.toLowerCase()===s);
+  const l = leagues.find(x =>
+    (`${x.name} — ${x.country} (${x.type})`).toLowerCase() === s
+  ) || leagues.find(x => x.name.toLowerCase() === s);
 
-  $("leagueId").value=l?.id||"";
+  $("leagueId").value = l?.id || "";
 
-  $("leagueInfo").textContent=l?
-    `${l.name} · ${l.country} · Season ${l.season}`:
+  $("leagueInfo").textContent = l ?
+    `${l.name} · ${l.country} · Season ${l.season}` :
     "Please select a valid competition.";
 });
 
-$("home").addEventListener("input",()=>{
-  $("homeDisplay").textContent=$("home").value.trim()||"HOME TEAM";
+// TEAM NAME PREVIEW
+$("home").addEventListener("input", () => {
+  $("homeDisplay").textContent =
+    $("home").value.trim() || "HOME TEAM";
 });
 
-$("away").addEventListener("input",()=>{
-  $("awayDisplay").textContent=$("away").value.trim()||"AWAY TEAM";
+$("away").addEventListener("input", () => {
+  $("awayDisplay").textContent =
+    $("away").value.trim() || "AWAY TEAM";
 });
 
-$("analyse").onclick=async()=>{
-  const home=$("home").value.trim();
-  const away=$("away").value.trim();
-  const leagueId=$("leagueId").value;
+// MATCH ANALYSIS
+$("analyse").onclick = async () => {
+  const home = $("home").value.trim();
+  const away = $("away").value.trim();
+  const leagueId = $("leagueId").value;
 
-  try{
-    if(!home||!away||!leagueId)
+  try {
+    if (!home || !away || !leagueId) {
       throw Error("Enter both teams and select a competition.");
+    }
 
-    $("analyse").disabled=true;
-    $("analyse").textContent="ANALYSING...";
-    $("status").textContent=
+    if (home.toLowerCase() === away.toLowerCase()) {
+      throw Error("Home and away teams must be different.");
+    }
+
+    $("analyse").disabled = true;
+    $("analyse").textContent = "ANALYSING...";
+
+    $("status").textContent =
       "Researching teams, form, historical meetings and statistics...";
-    $("result").style.display="none";
 
-    const r=await fetch("/api/analyse",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({home,away,leagueId})
+    const r = await fetch("/api/analyse", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({home, away, leagueId})
     });
 
-    const d=await r.json();
-    if(!r.ok)throw Error(d.error||"Analysis failed.");
+    const d = await r.json();
 
-    const m=d.model;
-    $("lh").textContent=Number(m.lambdaHome).toFixed(2);
-    $("la").textContent=Number(m.lambdaAway).toFixed(2);
-    $("lt").textContent=(Number(m.lambdaHome)+Number(m.lambdaAway)).toFixed(2);
+    if (!r.ok) {
+      throw Error(d.error || "Analysis failed.");
+    }
 
-    const ps=[
-      ["1 · "+d.teams.home,m.probabilities.home],
-      ["X · Draw",m.probabilities.draw],
-      ["2 · "+d.teams.away,m.probabilities.away]
+    const m = d.model;
+
+    $("lh").textContent = Number(m.lambdaHome).toFixed(2);
+    $("la").textContent = Number(m.lambdaAway).toFixed(2);
+
+    $("lt").textContent =
+      (Number(m.lambdaHome) + Number(m.lambdaAway)).toFixed(2);
+
+    const ps = [
+      ["1 · " + d.teams.home, m.probabilities.home],
+      ["X · Draw", m.probabilities.draw],
+      ["2 · " + d.teams.away, m.probabilities.away]
     ];
 
-    $("probs").innerHTML=ps.map(x=>`
+    $("probs").innerHTML = ps.map(x => `
       <div class="probability">
         <div class="prob-head">
           <b>${safe(x[0])}</b>
           <b>${pct(x[1])}</b>
         </div>
+
         <div class="bar">
-          <div class="fill" style="width:${Math.max(0,Math.min(100,x[1]*100))}%"></div>
+          <div class="fill"
+            style="width:${Math.max(0, Math.min(100, x[1] * 100))}%">
+          </div>
         </div>
-      </div>`).join("");
+      </div>
+    `).join("");
 
-    $("pick").textContent=" "+safe(m.pick.pick);
-    $("pickName").textContent=
-      safe(m.pick.name)+" · "+pct(m.pick.p);
+    $("pick").textContent = " " + safe(m.pick.pick);
 
-    $("recent").innerHTML=
-      renderForm(d.teams.home,d.recent.home)+
-      '<hr style="border:0;border-top:1px solid var(--line);margin:20px 0">'+
-      renderForm(d.teams.away,d.recent.away);
+    $("pickName").textContent =
+      safe(m.pick.name) + " · " + pct(m.pick.p);
 
-    $("h2h").innerHTML=tableRows(d.h2h);
+    // RECENT RESEARCH: MATCH CENTRE ONLY
+    $("recent").innerHTML =
+      renderForm(d.teams.home, d.recent.home) +
+      '<hr style="border:0;border-top:1px solid var(--line);margin:20px 0">' +
+      renderForm(d.teams.away, d.recent.away);
 
-    const injuries=[
-      ...(d.injuries?.home||[]).map(x=>({...x,side:d.teams.home})),
-      ...(d.injuries?.away||[]).map(x=>({...x,side:d.teams.away}))
+    $("recent").style.display = "block";
+
+    // HEAD-TO-HEAD
+    $("h2h").innerHTML = tableRows(d.h2h);
+
+    // SQUAD AVAILABILITY
+    const injuries = [
+      ...(d.injuries?.home || []).map(x => ({
+        ...x,
+        side: d.teams.home
+      })),
+
+      ...(d.injuries?.away || []).map(x => ({
+        ...x,
+        side: d.teams.away
+      }))
     ];
 
-    $("injuries").innerHTML=injuries.length?
-      '<table>'+injuries.map(x=>`
-        <tr><td>${safe(x.side)}</td>
-        <td>${safe(x.player||"Unknown")}</td>
-        <td>${safe(x.type||"")} ${safe(x.reason||"")}</td></tr>
-      `).join("")+'</table>':
+    $("injuries").innerHTML = injuries.length ?
+      '<table>' + injuries.map(x => `
+        <tr>
+          <td>${safe(x.side)}</td>
+          <td>${safe(x.player || "Unknown")}</td>
+          <td>${safe(x.type || "")} ${safe(x.reason || "")}</td>
+        </tr>
+      `).join("") + '</table>' :
       "No injury records returned. This does not establish that both squads are fully fit.";
 
-    $("scores").innerHTML=
-      '<table><thead><tr><th>Correct score</th><th>Model probability</th></tr></thead><tbody>'+
-      m.scores.map(x=>`<tr><td><b>${safe(x.score)}</b></td><td>${pct(x.p)}</td></tr>`).join("")+
+    // CORRECT SCORES
+    $("scores").innerHTML =
+      '<table><thead><tr><th>Correct score</th><th>Model probability</th></tr></thead><tbody>' +
+      (m.scores || []).map(x => `
+        <tr>
+          <td><b>${safe(x.score)}</b></td>
+          <td>${pct(x.p)}</td>
+        </tr>
+      `).join("") +
       '</tbody></table>';
 
-    $("audit").innerHTML=`
+    // DATA AUDIT
+    $("audit").innerHTML = `
       <b>Provider:</b> ${safe(d.provider)}<br>
-      <b>Retrieved:</b> ${safe(new Date(d.retrievedAt).toLocaleString())}<br>
+
+      <b>Retrieved:</b>
+      ${safe(new Date(d.retrievedAt).toLocaleString())}<br>
+
       <b>Season:</b> ${safe(d.season)}<br>
-      <b>Fixture:</b> ${d.fixture?
-        safe(new Date(d.fixture.date).toLocaleString())+" · "+safe(d.fixture.status):
+
+      <b>Fixture:</b> ${d.fixture ?
+        safe(new Date(d.fixture.date).toLocaleString()) +
+        " · " + safe(d.fixture.status) :
         "No matching upcoming fixture confirmed."}
+
       <br><br>
-      ${(d.notes||[]).map(x=>"• "+safe(x)).join("<br>")}
+
+      ${(d.notes || []).map(x => "• " + safe(x)).join("<br>")}
     `;
 
-    $("result").style.display="block";
-    $("status").textContent="Analysis completed. Review the research audit.";
-    window.scrollTo({top:$("prediction").offsetTop-15,behavior:"smooth"});
+    // OPEN PREDICTIONS AFTER SUCCESSFUL ANALYSIS
+    $("result").style.display = "block";
 
-  }catch(e){
-    $("status").innerHTML='<span class="error">'+safe(e.message)+'</span>';
-  }finally{
-    $("analyse").disabled=false;
-    $("analyse").textContent="RESEARCH & ANALYSE MATCH →";
+    $("status").textContent =
+      "Analysis completed. Prediction dashboard is ready.";
+
+    showWorkspace("prediction");
+
+  } catch (e) {
+    $("status").innerHTML =
+      '<span class="error">' + safe(e.message) + '</span>';
+
+  } finally {
+    $("analyse").disabled = false;
+    $("analyse").textContent = "RESEARCH & ANALYSE MATCH →";
   }
 };
-
-// WORKSPACE NAVIGATION
-const workspaceLinks = document.querySelectorAll(
-  'a[href="#match"], a[href="#prediction"], a[href="#form"], a[href="#statistics"], a[href="#audit"]'
-);
-
-workspaceLinks.forEach(link => {
-  link.addEventListener("click", event => {
-    event.preventDefault();
-$("result").style.display = "block";
-    const target = link.getAttribute("href").substring(1);
-const workspace = target === "statistics" ? "analytics" : target;
-    document.querySelectorAll(".workspace-section").forEach(section => {
-      section.classList.toggle(
-        "active",
-        section.dataset.workspace === workspace
-      );
-    });
-  });
-});
 
 // INDEPENDENT TEAM FORM RESEARCH
 $("teamFormAnalyse").addEventListener("click", async () => {
   const name = $("teamFormSearch").value.trim();
 
   if (!name) {
-    $("teamFormStatus").textContent = "Enter a football team name first.";
+    $("teamFormStatus").textContent =
+      "Enter a football team name first.";
     return;
   }
 
   const button = $("teamFormAnalyse");
+
   button.disabled = true;
   button.textContent = "RESEARCHING...";
-  $("teamFormStatus").textContent = "Retrieving recent team performance...";
+
+  $("teamFormStatus").textContent =
+    "Retrieving recent team performance...";
+
   $("teamFormResult").style.display = "none";
 
   try {
@@ -612,55 +1147,109 @@ $("teamFormAnalyse").addEventListener("click", async () => {
 
     $("teamFormIdentity").innerHTML = `
       <div style="display:flex;align-items:center;gap:15px;margin-bottom:20px">
-        <img src="${safe(team.logo)}" alt=""
-          style="width:65px;height:65px;object-fit:contain">
+
+        <img
+          src="${safe(team.logo)}"
+          alt=""
+          style="width:65px;height:65px;object-fit:contain"
+        >
+
         <div>
           <h2>${safe(team.name)}</h2>
           <div class="note">HIGHLIGHTLY TEAM PROFILE</div>
         </div>
+
       </div>
     `;
 
     $("teamFormStats").innerHTML = `
       <h3>Performance statistics</h3>
+
       <div class="stats-grid">
-        <div class="stat"><strong>${stats.played}</strong><span>Played</span></div>
-        <div class="stat"><strong>${stats.wins}</strong><span>Wins</span></div>
-        <div class="stat"><strong>${stats.draws}</strong><span>Draws</span></div>
-        <div class="stat"><strong>${stats.losses}</strong><span>Losses</span></div>
-        <div class="stat"><strong>${stats.goalsScored}</strong><span>Goals scored</span></div>
-        <div class="stat"><strong>${stats.goalsConceded}</strong><span>Goals conceded</span></div>
-        <div class="stat"><strong>${stats.averageScored}</strong><span>Avg scored</span></div>
-        <div class="stat"><strong>${stats.averageConceded}</strong><span>Avg conceded</span></div>
+
+        <div class="stat">
+          <strong>${stats.played}</strong>
+          <span>Played</span>
+        </div>
+
+        <div class="stat">
+          <strong>${stats.wins}</strong>
+          <span>Wins</span>
+        </div>
+
+        <div class="stat">
+          <strong>${stats.draws}</strong>
+          <span>Draws</span>
+        </div>
+
+        <div class="stat">
+          <strong>${stats.losses}</strong>
+          <span>Losses</span>
+        </div>
+
+        <div class="stat">
+          <strong>${stats.goalsScored}</strong>
+          <span>Goals scored</span>
+        </div>
+
+        <div class="stat">
+          <strong>${stats.goalsConceded}</strong>
+          <span>Goals conceded</span>
+        </div>
+
+        <div class="stat">
+          <strong>${stats.averageScored}</strong>
+          <span>Avg scored</span>
+        </div>
+
+        <div class="stat">
+          <strong>${stats.averageConceded}</strong>
+          <span>Avg conceded</span>
+        </div>
+
       </div>
     `;
 
     $("teamFormMatches").innerHTML = `
       <h3>Recent five matches</h3>
-      ${data.fixtures.map(match => `
+
+      ${(data.fixtures || []).map(match => `
         <div class="match-row">
+
           <div>
-            <strong>${safe(match.home)} vs ${safe(match.away)}</strong>
-            <div class="note">${new Date(match.date).toLocaleDateString()}</div>
+            <strong>
+              ${safe(match.home)} vs ${safe(match.away)}
+            </strong>
+
+            <div class="note">
+              ${new Date(match.date).toLocaleDateString()}
+            </div>
           </div>
+
           <strong>${safe(match.score)}</strong>
           <strong>${safe(match.result)}</strong>
+
         </div>
       `).join("")}
     `;
 
     $("teamFormResult").style.display = "block";
-    $("teamFormStatus").textContent = "Team research completed successfully.";
+
+    $("teamFormStatus").textContent =
+      "Team research completed successfully.";
 
   } catch (error) {
     $("teamFormStatus").textContent = error.message;
+
   } finally {
     button.disabled = false;
     button.textContent = "RESEARCH TEAM FORM →";
   }
 });
 
+// INITIALISE APPLICATION
 loadLeagues();
 </script>
+
 </body>
 </html>
